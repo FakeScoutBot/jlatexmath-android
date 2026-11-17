@@ -75,9 +75,33 @@ public class NewCommandMacro {
         return macrocode.containsKey(name);
     }
 
-    public static void reset() {
+    /**
+     * Predefined macros/environments (\\dfrac, pmatrix, cases, \\textbf ...) registered by {@link PredefMacros}.
+     * Snapshotted once registration is finished so {@link #reset()} only drops what a formula defined itself.
+     */
+    private static HashMap<String, String> predefCode, predefReplacement;
+
+    static synchronized void sealPredefined() {
+        predefCode = new HashMap<String, String>(macrocode);
+        predefReplacement = new HashMap<String, String>(macroreplacement);
+    }
+
+    /** Forget user definitions (\\newcommand / \\newenvironment) of the previous formula; predefined ones stay. */
+    public static synchronized void reset() {
+        if (predefCode == null) {                       // not sealed yet: nothing predefined to protect
+            macrocode.clear();
+            macroreplacement.clear();
+            return;
+        }
+        if (macrocode.size() == predefCode.size() && macroreplacement.size() == predefReplacement.size()
+                && macrocode.equals(predefCode) && macroreplacement.equals(predefReplacement)) return;   // common case
+        for (String name : new java.util.ArrayList<String>(macrocode.keySet())) {
+            if (!predefCode.containsKey(name)) MacroInfo.Commands.remove(name);
+        }
         macrocode.clear();
+        macrocode.putAll(predefCode);
         macroreplacement.clear();
+        macroreplacement.putAll(predefReplacement);
     }
 
     public static void addReNewCommand(String name, String code, int nbargs) {

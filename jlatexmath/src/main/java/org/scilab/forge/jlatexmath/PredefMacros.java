@@ -118,6 +118,7 @@ public class PredefMacros {
         NewCommandMacro.addNewCommand("L", "\\mathrm{\\polishlcross L}", 0);
         NewCommandMacro.addNewCommand("l", "\\mathrm{\\polishlcross l}", 0);
         NewCommandMacro.addNewCommand("Join", "\\mathop{\\rlap{\\ltimes}\\rtimes}", 0);
+        NewCommandMacro.sealPredefined();
     }
 
     public static final Atom fcscore_macro(final TeXParser tp, final String[] args) throws ParseException {
